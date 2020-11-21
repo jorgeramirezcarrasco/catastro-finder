@@ -11,6 +11,5 @@ via_result = catastro.get_vias(selected_provincia['Codigo'],selected_municipio['
 print(via_result)
 via_numero = 2
 inmueble_results = catastro.search_inmueble(via_result,via_numero,selected_provincia,selected_municipio)
-for inmueble in inmueble_results:
-    print(inmueble.text)
+print(inmueble_results[0])
      

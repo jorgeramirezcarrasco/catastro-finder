@@ -107,5 +107,23 @@ class CatastroFinder:
 
         response = requests.get(url, headers=headers, params=params)
         soup = BeautifulSoup(response.content,features="html.parser")
-        return soup.find_all("div", "panel-heading")
+        inmueble_results = soup.find_all("div", "panel-heading")
+        cleaned_results = []
+        for inmueble in inmueble_results:
+            results_item = {}
+            for element in inmueble.find_all("span"):
+                if "title" in element.attrs:
+                    if element.attrs["title"] == "Localización":
+                        results_item["Localización"] = element.text
+                    if element.attrs["title"] == "Año construcción":
+                        results_item["Año construcción"] = element.text.replace(" ","")
+                    if element.attrs["title"] == "Uso":
+                        results_item["Uso"] = element.text
+                    if element.attrs["title"] == "Coeficiente de participación":
+                        results_item["Coeficiente de participación"] = element.text.replace(" ","")
+                    if element.attrs["title"] == "Superficie construida":
+                        results_item["Superficie construida"] = element.text.replace(" ","")
+            if results_item:
+                cleaned_results.append(results_item)
+        return cleaned_results
 
