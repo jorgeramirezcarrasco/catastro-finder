@@ -10,7 +10,7 @@ print(selected_municipio)
 via_result = catastro.get_vias(selected_provincia['Codigo'],selected_municipio['Codigo'],"JACINTO")[0]
 print(via_result)
 via_numero = 2
-inmueble_result = catastro.search_inmueble(via_result,via_numero,selected_provincia,selected_municipio)
-for inmueble in inmueble_result:
+inmueble_results = catastro.search_inmueble(via_result,via_numero,selected_provincia,selected_municipio)
+for inmueble in inmueble_results:
     print(inmueble.text)
      
