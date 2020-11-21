@@ -4,7 +4,7 @@ Unofficial Catastro Finder. No API keys required
 
 ---
 
-Installation
+## Installation
 
 ```bash
 python3 -m venv venv
@@ -12,10 +12,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Usage
+## Usage
 
 ```bash
-from catastro_finder import CatastroFinder
+from catastro_finder.catastro_finder import CatastroFinder
 catastro = CatastroFinder()
 ```
 
@@ -47,4 +47,26 @@ Search a property
 # Choose property number
 via_numero = 2
 inmueble_results = catastro.search_inmueble(via_result,via_numero,selected_provincia,selected_municipio)
+```
+
+## Usage with Zappa as server-less, event-driven python application
+
+Remember to have the credentials in ~/.aws/credentials
+
+Deploy
+
+```bash
+zappa deploy dev
+```
+
+Update
+
+```bash
+zappa update dev
+```
+
+Delete
+
+```bash
+zappa undeploy dev
 ```

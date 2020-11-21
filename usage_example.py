@@ -1,4 +1,4 @@
-from catastro_finder import CatastroFinder
+from catastro_finder.catastro_finder import CatastroFinder
 
 catastro = CatastroFinder()
 provincias = catastro.get_provincias()

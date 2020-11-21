@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 class CatastroFinder:
     """CatastroFinder"""
 
-    def __init__(self,catastro_dict_path="./catastro_artifacts.json"):
+    def __init__(self,catastro_dict_path="catastro_finder/catastro_artifacts.json"):
         """
 
         Args:
