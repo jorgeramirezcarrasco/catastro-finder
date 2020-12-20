@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 from bs4 import BeautifulSoup
 
 class CatastroFinder:
@@ -66,6 +67,21 @@ class CatastroFinder:
                                 },
                                 "inmuebles": {
                                     "url": "https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCListaBienes.aspx",
+                                    "headers": {
+                                    "authority": "www1.sedecatastro.gob.es",
+                                    "cache-control": "max-age=0",
+                                    "upgrade-insecure-requests": "1",
+                                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                                    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                                    "sec-fetch-site": "none",
+                                    "sec-fetch-mode": "navigate",
+                                    "sec-fetch-user": "?1",
+                                    "sec-fetch-dest": "document",
+                                    "accept-language": "es-ES,es;q=0.9"
+                                    }
+                                },
+                                "cp": {
+                                    "url": "https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx",
                                     "headers": {
                                     "authority": "www1.sedecatastro.gob.es",
                                     "cache-control": "max-age=0",
@@ -183,6 +199,7 @@ class CatastroFinder:
                 if "title" in element.attrs:
                     if element.attrs["title"] == "Localización":
                         results_item["Localización"] = element.text
+                        results_item["RefC"] = element.parent.parent.find("b").text.replace(" ","")
                     if element.attrs["title"] == "Año construcción":
                         results_item["Año construcción"] = element.text.replace(" ","")
                     if element.attrs["title"] == "Uso":
@@ -194,4 +211,38 @@ class CatastroFinder:
             if results_item:
                 cleaned_results.append(results_item)
         return cleaned_results
+
+    def get_cp(self,provincia,municipio,rc,urbrus="U"):
+        """get_cp
+
+        Args:
+            provincia (str): Provincia code to search.
+            municipio (str): Municipio code to search.
+            rc (str): Ref catastral to search.
+            urbrus (str, optional): urbrus. Defaults to "U".
+         
+        Returns:
+            (str): Postal Code
+
+        """
+        url=self.catastro_dict["cp"]["url"]
+        headers=self.catastro_dict["cp"]["headers"]
+        params = (
+            ('del', str(provincia)),
+            ('mun', str(municipio)),
+            ('UrbRus', str(urbrus)),
+            ('RefC', str(rc)),
+            ('Apenom', ''),
+            ('esBice', ''),
+            ('RCBice1', ''),
+            ('RCBice2', ''),
+            ('DenoBice', ''),
+            ('from', 'nuevoVisor'),
+            ('ZV', 'NO'),
+        )
+
+        response = requests.get(url, headers=headers, params=params)
+        soup = BeautifulSoup(response.content,features="html.parser")
+        cp = re.search("\d{5}",soup.find_all("span", "control-label black")[1].get_text(strip=True, separator=" "))[0]
+        return cp
 
