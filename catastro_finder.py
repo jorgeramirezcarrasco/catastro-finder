@@ -94,7 +94,24 @@ class CatastroFinder:
                                     "sec-fetch-dest": "document",
                                     "accept-language": "es-ES,es;q=0.9"
                                     }
+                                },
+                                "lat_long": {
+                                    "url": "https://www1.sedecatastro.gob.es/Cartografia/BuscarParcelaInternet.aspx",
+                                    "headers": {
+                                    "authority": "www1.sedecatastro.gob.es",
+                                    "cache-control": "max-age=0",
+                                    "upgrade-insecure-requests": "1",
+                                    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                                    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                                    "sec-fetch-site": "none",
+                                    "sec-fetch-mode": "navigate",
+                                    'sec-fetch-site': 'same-origin',
+                                    "sec-fetch-user": "?1",
+                                    "sec-fetch-dest": "document",
+                                    "accept-language": "es-ES,es;q=0.9"
+                                    }
                                 }
+
                                 }
 
 
@@ -246,3 +263,41 @@ class CatastroFinder:
         cp = re.search("\d{5}",soup.find_all("span", "control-label black")[1].get_text(strip=True, separator=" "))[0]
         return cp
 
+    def get_lat_lon(self, rc):
+        """get_lat_lon
+
+        Args:
+            rc (str): Ref catastral to search.
+         
+        Returns:
+            (dict): dict with lat and lng
+        """
+        url=self.catastro_dict["lat_long"]["url"]
+        headers=self.catastro_dict["lat_long"]["headers"]
+        params = (
+            ('refcat', str(rc)),
+        )
+        response = requests.get(url, headers=headers, params=params)
+        soup = BeautifulSoup(response.content,features="html.parser")
+        data_form_list = [inp for inp in soup.find_all("input") if 'class' in inp.parent.attrs and 'aspNetHidden' in inp.parent["class"]]
+        data_form_dict = {}
+        for data_form in data_form_list:
+            data_form_dict[data_form.attrs['name']] = data_form.attrs['value']
+
+        url=self.catastro_dict["lat_long"]["url"]
+        headers=self.catastro_dict["lat_long"]["headers"]
+        params = (
+            ('refcat', str(rc)),
+        )
+        data = {
+        '__VIEWSTATE': data_form_dict['__VIEWSTATE'],
+        '__VIEWSTATEGENERATOR': data_form_dict['__VIEWSTATEGENERATOR'],
+        '__EVENTVALIDATION': data_form_dict['__EVENTVALIDATION'],
+        'ctl00$Contenido$RefCat': str(rc),
+        'ctl00$Contenido$ImgBGoogleMaps.x': '0',
+        'ctl00$Contenido$ImgBGoogleMaps.y': '0'
+        }
+        response = requests.post(url, headers=headers, params=params, data=data)
+        soup = BeautifulSoup(response.content,features="html.parser")
+        lat_long = str(soup.find_all("span", {"id": "ctl00_Contenido_lblAbrirVentana"})[0].find("script")).split("&q=")[-1].split("(")[0].split(",")
+        return (lat_long[0],lat_long[1])
