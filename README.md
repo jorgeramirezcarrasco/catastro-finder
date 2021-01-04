@@ -46,3 +46,15 @@ via_result = catastro.get_vias(selected_provincia['Codigo'],selected_municipio['
 via_numero = 2
 inmueble_results = catastro.search_inmueble(via_result,via_numero,selected_provincia,selected_municipio)
 ```
+
+### Search a postal code from property
+
+```bash
+cp = catastro.get_cp(selected_provincia['Codigo'],selected_municipio['Codigo'],inmueble_results[0]['RefC'])
+```
+
+### Search latitude and longitude from property
+
+```bash
+lat, lon  = catastro.get_lat_lon(inmueble_results[0]['RefC'])
+```
